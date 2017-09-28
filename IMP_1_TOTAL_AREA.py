@@ -17,16 +17,16 @@ sde = r'Database Connections\Connection to GISPRDDB direct connect.sde'
 
 # Local variables:
 cvgis_CITY_parcel_area = sde + "\\cvgis.CITY.Cadastre\\cvgis.CITY.parcel_area"
-cvgis_CITY_slab_area = sde + "\\cvgis.CITY.Buildings\\cvgis.CITY.slab_area"
-cvgis_CITY_structure_existing_area = sde + "\\cvgis.CITY.Buildings\\cvgis.CITY.structure_existing_area"
-cvgis_CITY_miscellaneous_building_area = sde + "\\cvgis.CITY.Buildings\\cvgis.CITY.miscellaneous_building_area"
-cvgis_CITY_pedestrian_walkway_area = sde + "\\cvgis.CITY.Transportation_Other\\cvgis.CITY.pedestrian_walkway_area"
-cvgis_CITY_road_area = sde + "\\cvgis.CITY.Transportation_Road\\cvgis.CITY.road_area_master"
-cvgis_CITY_vehicle_driveway_area= sde + "\\cvgis.CITY.Transportation_Other\\cvgis.CITY.vehicle_driveway_area"
-cvgis_CITY_vehicle_parking_area = sde + "\\cvgis.CITY.Transportation_Other\\cvgis.CITY.vehicle_parking_area"
+#cvgis_CITY_slab_area = sde + "\\cvgis.CITY.Buildings\\cvgis.CITY.slab_area"
+#cvgis_CITY_structure_existing_area = sde + "\\cvgis.CITY.Buildings\\cvgis.CITY.structure_existing_area"
+#cvgis_CITY_miscellaneous_building_area = sde + "\\cvgis.CITY.Buildings\\cvgis.CITY.miscellaneous_building_area"
+#cvgis_CITY_pedestrian_walkway_area = sde + "\\cvgis.CITY.Transportation_Other\\cvgis.CITY.pedestrian_walkway_area"
+#cvgis_CITY_road_area = sde + "\\cvgis.CITY.Transportation_Road\\cvgis.CITY.road_area_master"
+#cvgis_CITY_vehicle_driveway_area= sde + "\\cvgis.CITY.Transportation_Other\\cvgis.CITY.vehicle_driveway_area"
+#cvgis_CITY_vehicle_parking_area = sde + "\\cvgis.CITY.Transportation_Other\\cvgis.CITY.vehicle_parking_area"
 cvgis_CITY_parcel_point = sde + r'\cvgis.CITY.Cadastre\cvgis.CITY.parcel_point'
-cvgis_CITY_pedestrian_sidewalk_area = sde + "\\cvgis.CITY.Transportation_Other\\cvgis.CITY.pedestrian_sidewalk_area"
-cvgis_CITY_railroad_area = sde + "\\cvgis.CITY.Transportation_Railroad\\cvgis.CITY.railroad_area"
+#cvgis_CITY_pedestrian_sidewalk_area = sde + "\\cvgis.CITY.Transportation_Other\\cvgis.CITY.pedestrian_sidewalk_area"
+#cvgis_CITY_railroad_area = sde + "\\cvgis.CITY.Transportation_Railroad\\cvgis.CITY.railroad_area"
 
 intersect1 = gdb + r"\intersect1"
 dissolve1 = gdb + r"\dissolve1"
@@ -35,19 +35,23 @@ union1 = gdb + r"\union1"
 parcel_point_copy = gdb + r"\parcel_point_copy"
 FINAL_IMP_POINTS = gdb + r"\FINAL_IMP_POINTS"
 
-
-'''Copy Parcel points to gdb'''
 '''
+#Copy Parcel points to gdb
 arcpy.CopyFeatures_management(cvgis_CITY_parcel_point, 'parcel_point')
 '''
+# Merge all impervious layers into all_imp
+imp_list = [
+  sde+r'\cvgis.CITY.Buildings\cvgis.CITY.slab_area',
+  sde+r'\cvgis.CITY.Buildings\cvgis.CITY.structure_existing_area',
+  sde+r'\cvgis.CITY.Buildings\cvgis.CITY.miscellaneous_building_area',
+  sde+r'\cvgis.CITY.Transportation_Other\cvgis.CITY.pedestrian_walkway_area',
+  sde+r'\cvgis.CITY.Transportation_Railroad\cvgis.CITY.railroad_area',
+  sde+r'\cvgis.CITY.Transportation_Other\cvgis.CITY.pedestrian_sidewalk_area',
+  sde+r'\cvgis.CITY.Transportation_Road\cvgis.CITY.road_area_master',
+  sde+r'\cvgis.CITY.Transportation_Other\cvgis.CITY.vehicle_driveway_area',
+  sde+r'\cvgis.CITY.Transportation_Other\cvgis.CITY.vehicle_parking_area'
+  ]
 
-# Process: Merge
-#
-imp_list = [cvgis_CITY_slab_area, cvgis_CITY_structure_existing_area,
-    cvgis_CITY_miscellaneous_building_area, cvgis_CITY_pedestrian_walkway_area,
-    cvgis_CITY_railroad_area, cvgis_CITY_pedestrian_sidewalk_area,
-    cvgis_CITY_road_area, cvgis_CITY_vehicle_driveway_area, 
-    cvgis_CITY_vehicle_parking_area]
 arcpy.Merge_management(imp_list, all_imp)
 '''
 # Process: Union
