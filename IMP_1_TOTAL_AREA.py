@@ -9,11 +9,12 @@
 # Import arcpy module
 import arcpy
 
-gdb = r'C:\Users\brownr\Desktop\imperv\data\test.gdb'
+gdb = r'C:\Users\brownr\Desktop\imperv\data\imp.gdb'
 arcpy.env.workspace = gdb
 arcpy.env.overwriteOutput = True
 
 sde = r'Database Connections\Connection to GISPRDDB direct connect.sde'
+
 # Local variables:
 cvgis_CITY_parcel_area = sde + "\\cvgis.CITY.Cadastre\\cvgis.CITY.parcel_area"
 cvgis_CITY_slab_area = sde + "\\cvgis.CITY.Buildings\\cvgis.CITY.slab_area"
@@ -34,8 +35,9 @@ union1 = gdb + r"\union1"
 parcel_point_copy = gdb + r"\parcel_point_copy"
 FINAL_IMP_POINTS = gdb + r"\FINAL_IMP_POINTS"
 
+
 '''Copy Parcel points to gdb'''
-arcpy.CopyFeatures_management(cvgis_CITY_parcel_point, parcel_point_copy)
+arcpy.CopyFeatures_management(cvgis_CITY_parcel_point, 'parcel_point')
 
 '''
 # Process: Merge
