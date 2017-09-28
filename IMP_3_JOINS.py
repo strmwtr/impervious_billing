@@ -51,50 +51,10 @@ for feat in imp_list:
   dis = gdb + '\\' + feat_name + '_dis'
   arcpy.MakeTableView_management(dis, "{0}_tview".format(feat_name, "", "", "")
 
-#-------------------------------------------------------------------------------------------------
-#-----------
-#Create Table View (s)
-#-----------
-# Set data path and make tableview
-intable = FINAL_IMP_POINTS
-arcpy.MakeTableView_management(intable, "FINAL_IMP_POINTS_tview", "", "", "" )
+#Create Table View for FINAL_IMP_POINTS
 
-# Set data path and make tableview driveways
-intable = dissolve_driveway_1
-arcpy.MakeTableView_management(intable, "dissolve_driveway_1_tview", "", "", "" )
-
-# Set data path and make tableview misc_structures
-intable = dissolve_misc_struct_1
-arcpy.MakeTableView_management(intable, "dissolve_misc_struct_1_tview", "", "", "" )
-
-# Set data path and make tableview parking_area
-intable = dissolve_parking_1
-arcpy.MakeTableView_management(intable, "dissolve_parking_1_tview", "", "", "" )
-
-# Set data path and make tableview road_area
-intable = dissolve_road_1
-arcpy.MakeTableView_management(intable, "dissolve_road_1_tview", "", "", "" )
-
-# Set data path and make tableview slab_area
-intable = dissolve_slab_1
-arcpy.MakeTableView_management(intable, "dissolve_slab_1_tview", "", "", "" )
-
-# Set data path and make tableview structure_area
-intable = dissolve_structure_1
-arcpy.MakeTableView_management(intable, "dissolve_structure_1_tview", "", "", "" )
-
-# Set data path and make tableview walkway_area
-intable = dissolve_walkway_1
-arcpy.MakeTableView_management(intable, "dissolve_walkway_1_tview", "", "", "" )
-
-# Set data path and make tableview sidewalk_area
-intable = dissolve_sidewalk_1
-arcpy.MakeTableView_management(intable, "dissolve_sidewalk_1_tview", "", "", "" )
-
-# Set data path and make tableview railroad_area
-intable = dissolve_railroad_1
-arcpy.MakeTableView_management(intable, "dissolve_railroad_1_tview", "", "", "" )
-
+arcpy.MakeTableView_management(FINAL_IMP_POINTS, "FINAL_IMP_POINTS_tview", "", 
+  "", "" )
 
 
 #AddJoin, Calc and remove-------------------------------------------------------------------------------------------------
