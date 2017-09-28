@@ -31,33 +31,23 @@ imp_list = [
 FINAL_IMP_POINTS = gdb + r'\FINAL_IMP_POINTS'
 FINAL_IMP_BREAKOUT = gdb + r'\FINAL_IMP_BREAKOUT'
 
-'''
-dissolve_slab_1 = "\\\Metanoia\geodata\IT\SIMPSON\projects\Impervious\Simpson.gdb\\dissolve_slab_1"
-dissolve_misc_struct_1 = "\\\Metanoia\geodata\IT\SIMPSON\projects\Impervious\Simpson.gdb\\dissolve_misc_struct_1"
-dissolve_walkway_1 = "\\\Metanoia\geodata\IT\SIMPSON\projects\Impervious\Simpson.gdb\\dissolve_walkway_1"
-dissolve_road_1 = "\\\Metanoia\geodata\IT\SIMPSON\projects\Impervious\Simpson.gdb\\dissolve_road_1"
-dissolve_driveway_1 = "\\\Metanoia\geodata\IT\SIMPSON\projects\Impervious\Simpson.gdb\\dissolve_driveway_1"
-dissolve_parking_1 = "\\\Metanoia\geodata\IT\SIMPSON\projects\Impervious\Simpson.gdb\\dissolve_parking_1"
-dissolve_structure_1 = "\\\Metanoia\geodata\IT\SIMPSON\projects\Impervious\Simpson.gdb\\dissolve_structure_1"
-dissolve_sidewalk_1 = "\\\Metanoia\geodata\IT\SIMPSON\projects\Impervious\Simpson.gdb\\dissolve_sidewalk_1"
-dissolve_railroad_1 = "\\\Metanoia\geodata\IT\SIMPSON\projects\Impervious\Simpson.gdb\\dissolve_railroad_1"
-FINAL_IMP_POINTS = "\\\Metanoia\geodata\IT\SIMPSON\projects\Impervious\Simpson_2.gdb\\FINAL_IMP_POINTS"
-FINAL_IMP_BREAKOUT = "\\\Metanoia\geodata\IT\SIMPSON\projects\Impervious\Simpson_2.gdb\\FINAL_IMP_BREAKOUT"
-'''
 #Create Table View for FINAL_IMP_POINTS
-arcpy.MakeTableView_management(FINAL_IMP_POINTS, "FINAL_IMP_POINTS_tview", "", 
-  "", "" )
+arcpy.MakeTableView_management(FINAL_IMP_POINTS, "FINAL_IMP_POINTS_tview")
 
 for feat in imp_list:
   feat_name = feat.split('.')[-1]
   inte = gdb + '\\' + feat_name + '_int'
   dis = gdb + '\\' + feat_name + '_dis'
-  print feat_name, inte, dis
-  arcpy.MakeTableView_management(dis, "{0}_tview".format(feat_name), "", "","")
+  print feat_name
+  arcpy.MakeTableView_management(dis, "{0}_tview".format(feat_name))
+  
+  field_names = [f.name for f in arcpy.ListFields("FINAL_IMP_POINTS_tview")]
+  print field_names
+
   arcpy.AddJoin_management("FINAL_IMP_POINTS_tview", "PARCELSPOL", 
   "{0}_tview".format(feat_name), "GPIN")
   arcpy.CalculateField_management("FINAL_IMP_POINTS_tview", 
-  "[{0}_tview".format(feat_name) + ".SHAPE_Area]", "VB", "")
+  "{0}_tview".format(feat_name) + ".SHAPE_Area", "VB")
   arcpy.RemoveJoin_management("FINAL_IMP_POINTS_tview")
 
 
@@ -262,7 +252,7 @@ arcpy.RemoveJoin_management("FINAL_IMP_POINTS_tview") # might speed things up
 #----------------------------------------------------------------------------------------------------
 #----------------------------------------------------------------------------------------------------
 # use CopyRows to copy the tables in a folder to a file geodatabase.
-arcpy.CopyRows_management("FINAL_IMP_POINTS_tview", FINAL_IMP_BREAKOUT)
+#arcpy.CopyRows_management("FINAL_IMP_POINTS_tview", FINAL_IMP_BREAKOUT)
 
 #-------------------------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------------------------
