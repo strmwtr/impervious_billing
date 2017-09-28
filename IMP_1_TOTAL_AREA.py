@@ -32,13 +32,13 @@ intersect1 = gdb + r"\intersect1"
 dissolve1 = gdb + r"\dissolve1"
 all_imp = gdb + r"\all_imp"
 union1 = gdb + r"\union1"
-parcel_point_copy = gdb + r"\parcel_point_copy"
+parcel_point_copy = gdb + r"\parcel_point"
 FINAL_IMP_POINTS = gdb + r"\FINAL_IMP_POINTS"
 
-'''
+
 #Copy Parcel points to gdb
-arcpy.CopyFeatures_management(cvgis_CITY_parcel_point, 'parcel_point')
-'''
+arcpy.CopyFeatures_management(cvgis_CITY_parcel_point, parcel_point_copy)
+
 # Merge all impervious layers into all_imp
 imp_list = [
   sde+r'\cvgis.CITY.Buildings\cvgis.CITY.slab_area',
@@ -53,7 +53,7 @@ imp_list = [
   ]
 
 arcpy.Merge_management(imp_list, all_imp)
-'''
+
 # Process: Union
 arcpy.Union_analysis(all_imp, union1, "ALL", "", "GAPS")
 
@@ -63,11 +63,9 @@ arcpy.Intersect_analysis([cvgis_CITY_parcel_area, union1], intersect1, "ALL", ""
 # Process: Dissolve
 arcpy.Dissolve_management(intersect1, dissolve1, "GPIN", "", "MULTI_PART", "DISSOLVE_LINES")
 
-#-------------------------------------------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------------------------------------------
 # Process: Join Field
 arcpy.JoinField_management(parcel_point_copy, "PARCELSPOL", dissolve1, "GPIN", "")
-
+'''
 #-------------------------------------------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------------------------------------------
 
