@@ -27,14 +27,6 @@ imp_list = [
   sde+r'\cvgis.CITY.Transportation_Other\cvgis.CITY.vehicle_parking_area'
   ]
 
-for feat in imp_list:
-  inte = gdb + '\\' + feat.split('.')[-1] + '_int'
-  dis = gdb + '\\' + feat.split('.')[-1] + '_dis'
-  arcpy.Intersect_analysis([feat, cvgis_CITY_parcel_area], inte)
-  arcpy.Dissolve_management(inte, dis, ["GPIN"], "","MULTI_PART", 
-  "DISSOLVE_LINES")
-
-
 # Local variables:
 FINAL_IMP_POINTS = "\\\Metanoia\geodata\IT\SIMPSON\projects\Impervious\Simpson_2.gdb\\FINAL_IMP_POINTS"
 FINAL_IMP_BREAKOUT = "\\\Metanoia\geodata\IT\SIMPSON\projects\Impervious\Simpson_2.gdb\\FINAL_IMP_BREAKOUT"
@@ -52,6 +44,11 @@ dissolve_railroad_1 = "\\\Metanoia\geodata\IT\SIMPSON\projects\Impervious\Simpso
 FINAL_IMP_POINTS = "\\\Metanoia\geodata\IT\SIMPSON\projects\Impervious\Simpson_2.gdb\\FINAL_IMP_POINTS"
 FINAL_IMP_BREAKOUT = "\\\Metanoia\geodata\IT\SIMPSON\projects\Impervious\Simpson_2.gdb\\FINAL_IMP_BREAKOUT"
 '''
+
+for feat in imp_list:
+  inte = gdb + '\\' + feat.split('.')[-1] + '_int'
+  dis = gdb + '\\' + feat.split('.')[-1] + '_dis'
+  
 
 #-------------------------------------------------------------------------------------------------
 #-----------
