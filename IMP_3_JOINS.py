@@ -46,9 +46,10 @@ FINAL_IMP_BREAKOUT = "\\\Metanoia\geodata\IT\SIMPSON\projects\Impervious\Simpson
 '''
 
 for feat in imp_list:
-  inte = gdb + '\\' + feat.split('.')[-1] + '_int'
-  dis = gdb + '\\' + feat.split('.')[-1] + '_dis'
-  
+  feat_name = feat.split('.')[-1]
+  inte = gdb + '\\' + feat_name + '_int'
+  dis = gdb + '\\' + feat_name + '_dis'
+  arcpy.MakeTableView_management(dis, "{0}_tview".format(feat_name, "", "", "")
 
 #-------------------------------------------------------------------------------------------------
 #-----------
