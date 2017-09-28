@@ -24,7 +24,7 @@ cvgis_CITY_pedestrian_walkway_area = sde + "\\cvgis.CITY.Transportation_Other\\c
 cvgis_CITY_road_area = sde + "\\cvgis.CITY.Transportation_Road\\cvgis.CITY.road_area_master"
 cvgis_CITY_vehicle_driveway_area= sde + "\\cvgis.CITY.Transportation_Other\\cvgis.CITY.vehicle_driveway_area"
 cvgis_CITY_vehicle_parking_area = sde + "\\cvgis.CITY.Transportation_Other\\cvgis.CITY.vehicle_parking_area"
-cvgis_CITY_parcel_point = sde + "\\cvgis.CITY.Cadastre\\cvgis.CITY.parcel_point"
+cvgis_CITY_parcel_point = sde + r'\cvgis.CITY.Cadastre\cvgis.CITY.parcel_point'
 cvgis_CITY_pedestrian_sidewalk_area = sde + "\\cvgis.CITY.Transportation_Other\\cvgis.CITY.pedestrian_sidewalk_area"
 cvgis_CITY_railroad_area = sde + "\\cvgis.CITY.Transportation_Railroad\\cvgis.CITY.railroad_area"
 
@@ -35,12 +35,8 @@ union1 = gdb + r"\union1"
 parcel_point_copy = gdb + r"\parcel_point_copy"
 FINAL_IMP_POINTS = gdb + r"\FINAL_IMP_POINTS"
 
-#-------------------------------------------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------------------------------------------
-# Process: Copy (2)
+'''Copy Parcel points to gdb'''
 arcpy.Copy_management(cvgis_CITY_parcel_point, parcel_point_copy, "FeatureClass")
-#-------------------------------------------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------------------------------------------
 
 '''
 # Process: Merge
