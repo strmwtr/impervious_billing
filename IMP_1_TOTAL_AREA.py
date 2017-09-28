@@ -57,19 +57,24 @@ arcpy.Merge_management(imp_list, all_imp)
 arcpy.Union_analysis(all_imp, union1, "ALL", "", "GAPS")
 
 # Process: Intersect
-arcpy.Intersect_analysis([cvgis_CITY_parcel_area, union1], intersect1, "ALL", "", "INPUT")
+arcpy.Intersect_analysis([cvgis_CITY_parcel_area, union1], intersect1, "ALL", 
+  "", "INPUT")
 
 # Process: Dissolve
-arcpy.Dissolve_management(intersect1, dissolve1, "GPIN", "", "MULTI_PART", "DISSOLVE_LINES")
+arcpy.Dissolve_management(intersect1, dissolve1, "GPIN", "", "MULTI_PART", 
+  "DISSOLVE_LINES")
 
 # Process: Join Field
-arcpy.JoinField_management(parcel_point_copy, "PARCELSPOL", dissolve1, "GPIN", "")
+arcpy.JoinField_management(parcel_point_copy, "PARCELSPOL", dissolve1, "GPIN", 
+  "")
 
 # Process: Add Field (PIN)
-arcpy.AddField_management(parcel_point_copy, "PIN", "TEXT", "", "", "15", "", "NULLABLE", "NON_REQUIRED", "")
+arcpy.AddField_management(parcel_point_copy, "PIN", "TEXT", "", "", "15", "", 
+  "NULLABLE", "NON_REQUIRED", "")
 
 # Process: Calculate Field (PIN)
-arcpy.CalculateField_management(parcel_point_copy, "PIN", "[PROP_ID]", "VB", "")
+arcpy.CalculateField_management(parcel_point_copy, "PIN", "[PROP_ID]", "VB", 
+  "")
 
 add_fields = ["STRUCTURE_AREA", "SLAB_AREA", "MISC_STRUCT_AREA", 
   "PARKING_AREA", "DRIVEWAY_AREA", "SIDEWALK_AREA", "WALKWAY_AREA","ROAD_AREA",
@@ -80,10 +85,12 @@ for field in add_fields:
   "", "15", "", "NULLABLE", "NON_REQUIRED", "")
 
 # Process: Add Field (Total Area)
-arcpy.AddField_management(parcel_point_copy, "TOTAL_IMP_AREA", "DOUBLE", "", "", "", "", "NULLABLE", "NON_REQUIRED", "")
+arcpy.AddField_management(parcel_point_copy, "TOTAL_IMP_AREA", "DOUBLE", "", 
+  "", "", "", "NULLABLE", "NON_REQUIRED", "")
 
 # Process: Calculate Field (calculate Total IMP area)
-arcpy.CalculateField_management(parcel_point_copy, "TOTAL_IMP_AREA", "[Shape_Area]", "VB", "")
+arcpy.CalculateField_management(parcel_point_copy, "TOTAL_IMP_AREA", 
+  "[Shape_Area]", "VB", "")
 
 # Process: Remove Join
 #arcpy.RemoveJoin_management(parcel_point_copy) # might speed things up
