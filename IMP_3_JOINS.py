@@ -28,8 +28,8 @@ imp_list = [
   ]
 
 # Local variables:
-FINAL_IMP_POINTS = "\\\Metanoia\geodata\IT\SIMPSON\projects\Impervious\Simpson_2.gdb\\FINAL_IMP_POINTS"
-FINAL_IMP_BREAKOUT = "\\\Metanoia\geodata\IT\SIMPSON\projects\Impervious\Simpson_2.gdb\\FINAL_IMP_BREAKOUT"
+FINAL_IMP_POINTS = gdb + r'\FINAL_IMP_POINTS'
+FINAL_IMP_BREAKOUT = gdb + r'\FINAL_IMP_BREAKOUT'
 
 '''
 dissolve_slab_1 = "\\\Metanoia\geodata\IT\SIMPSON\projects\Impervious\Simpson.gdb\\dissolve_slab_1"
@@ -44,19 +44,24 @@ dissolve_railroad_1 = "\\\Metanoia\geodata\IT\SIMPSON\projects\Impervious\Simpso
 FINAL_IMP_POINTS = "\\\Metanoia\geodata\IT\SIMPSON\projects\Impervious\Simpson_2.gdb\\FINAL_IMP_POINTS"
 FINAL_IMP_BREAKOUT = "\\\Metanoia\geodata\IT\SIMPSON\projects\Impervious\Simpson_2.gdb\\FINAL_IMP_BREAKOUT"
 '''
+#Create Table View for FINAL_IMP_POINTS
+arcpy.MakeTableView_management(FINAL_IMP_POINTS, "FINAL_IMP_POINTS_tview", "", 
+  "", "" )
 
 for feat in imp_list:
   feat_name = feat.split('.')[-1]
   inte = gdb + '\\' + feat_name + '_int'
   dis = gdb + '\\' + feat_name + '_dis'
-  arcpy.MakeTableView_management(dis, "{0}_tview".format(feat_name, "", "", "")
+  print feat_name, inte, dis
+  arcpy.MakeTableView_management(dis, "{0}_tview".format(feat_name), "", "","")
+  arcpy.AddJoin_management("FINAL_IMP_POINTS_tview", "PARCELSPOL", 
+  "{0}_tview".format(feat_name), "GPIN")
+  arcpy.CalculateField_management("FINAL_IMP_POINTS_tview", 
+  "[{0}_tview".format(feat_name) + ".SHAPE_Area]", "VB", "")
+  arcpy.RemoveJoin_management("FINAL_IMP_POINTS_tview")
 
-#Create Table View for FINAL_IMP_POINTS
 
-arcpy.MakeTableView_management(FINAL_IMP_POINTS, "FINAL_IMP_POINTS_tview", "", 
-  "", "" )
-
-
+"""
 #AddJoin, Calc and remove-------------------------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------------------------
 # Driveways
@@ -251,7 +256,7 @@ arcpy.CalculateField_management("FINAL_IMP_POINTS_tview", "RAILROAD_AREA", "[dis
 # Process: Remove Join
 arcpy.RemoveJoin_management("FINAL_IMP_POINTS_tview") # might speed things up
 
-
+"""
 #----------------------------------------------------------------------------------------------------
 #----------------------------------------------------------------------------------------------------
 #----------------------------------------------------------------------------------------------------
