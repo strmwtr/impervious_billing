@@ -29,25 +29,29 @@ cvgis_CITY_pedestrian_sidewalk_area = sde + "\\cvgis.CITY.Transportation_Other\\
 cvgis_CITY_railroad_area = sde + "\\cvgis.CITY.Transportation_Railroad\\cvgis.CITY.railroad_area"
 
 intersect1 = gdb + r"\intersect1"
-dissolve1 = gdb +"\dissolve1"
-merge1 = gdb + "\merge1"
+dissolve1 = gdb + r"\dissolve1"
+all_imp = gdb + r"\all_imp"
 union1 = gdb + r"\union1"
 parcel_point_copy = gdb + r"\parcel_point_copy"
 FINAL_IMP_POINTS = gdb + r"\FINAL_IMP_POINTS"
 
 
 '''Copy Parcel points to gdb'''
-arcpy.CopyFeatures_management(cvgis_CITY_parcel_point, 'parcel_point')
-
 '''
+arcpy.CopyFeatures_management(cvgis_CITY_parcel_point, 'parcel_point')
+'''
+
 # Process: Merge
 #
-arcpy.Merge_management("'" + cvgis_CITY_slab_area + "';'" + cvgis_CITY_structure_existing_area + "';'" + cvgis_CITY_miscellaneous_building_area + "';'"
- + cvgis_CITY_pedestrian_walkway_area + "';'" + cvgis_CITY_railroad_area + "';'" + cvgis_CITY_pedestrian_sidewalk_area + "';'" + cvgis_CITY_road_area + "';'" + cvgis_CITY_vehicle_driveway_area + "';'" + cvgis_CITY_vehicle_parking_area + "';'"
- + "'", merge1)
-
+imp_list = [cvgis_CITY_slab_area, cvgis_CITY_structure_existing_area,
+    cvgis_CITY_miscellaneous_building_area, cvgis_CITY_pedestrian_walkway_area,
+    cvgis_CITY_railroad_area, cvgis_CITY_pedestrian_sidewalk_area,
+    cvgis_CITY_road_area, cvgis_CITY_vehicle_driveway_area, 
+    cvgis_CITY_vehicle_parking_area]
+arcpy.Merge_management(imp_list, all_imp)
+'''
 # Process: Union
-arcpy.Union_analysis(merge1, union1, "ALL", "", "GAPS")
+arcpy.Union_analysis(all_imp, union1, "ALL", "", "GAPS")
 
 # Process: Intersect
 arcpy.Intersect_analysis([cvgis_CITY_parcel_area, union1], intersect1, "ALL", "", "INPUT")
