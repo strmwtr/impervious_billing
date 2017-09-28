@@ -9,7 +9,8 @@
 # Import arcpy module
 import arcpy
 
-arcpy.env.workspace = "r\\Metanoia\geodata\IT\SIMPSON\projects\Impervious\Simpson.gdb"
+gdb = r'C:\Users\brownr\Desktop\imperv\data\test.gdb'
+arcpy.env.workspace = gdb
 arcpy.env.overwriteOutput = True
 
 sde =  "Database Connections\\CVGISWEB_Connection to GISPRDDB.sde"
@@ -27,12 +28,12 @@ cvgis_CITY_parcel_point = sde + "\\cvgis.CITY.Cadastre\\cvgis.CITY.parcel_point"
 cvgis_CITY_pedestrian_sidewalk_area = sde + "\\cvgis.CITY.Transportation_Other\\cvgis.CITY.pedestrian_sidewalk_area"
 cvgis_CITY_railroad_area = sde + "\\cvgis.CITY.Transportation_Railroad\\cvgis.CITY.railroad_area"
 
-intersect1 = "\\\Metanoia\geodata\IT\SIMPSON\projects\Impervious\Simpson.gdb\\intersect1"
-dissolve1 = "\\\Metanoia\geodata\IT\SIMPSON\projects\Impervious\Simpson.gdb\\dissolve1"
-merge1 = "\\\Metanoia\geodata\IT\SIMPSON\projects\Impervious\Simpson.gdb\\merge1"
-union1 = "\\\Metanoia\geodata\IT\SIMPSON\projects\Impervious\Simpson.gdb\\union1"
-parcel_point_copy = "\\\Metanoia\geodata\IT\SIMPSON\projects\Impervious\Simpson.gdb\\parcel_point_copy"
-FINAL_IMP_POINTS = "\\\Metanoia\geodata\IT\SIMPSON\projects\Impervious\Simpson_2.gdb\\FINAL_IMP_POINTS"
+intersect1 = gdb + r"\intersect1"
+dissolve1 = gdb +"\dissolve1"
+merge1 = gdb + "\merge1"
+union1 = gdb + r"\union1"
+parcel_point_copy = gdb + r"\parcel_point_copy"
+FINAL_IMP_POINTS = gdb + r"\FINAL_IMP_POINTS"
 
 #-------------------------------------------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------------------------------------------
@@ -41,7 +42,7 @@ arcpy.Copy_management(cvgis_CITY_parcel_point, parcel_point_copy, "FeatureClass"
 #-------------------------------------------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------------------------------------------
 
-
+'''
 # Process: Merge
 #
 arcpy.Merge_management("'" + cvgis_CITY_slab_area + "';'" + cvgis_CITY_structure_existing_area + "';'" + cvgis_CITY_miscellaneous_building_area + "';'"
@@ -116,4 +117,4 @@ arcpy.AddField_management(parcel_point_copy, "RAILROAD_AREA", "DOUBLE", "", "", 
 # Process: Copy out to final point featureclass
 arcpy.Copy_management(parcel_point_copy, FINAL_IMP_POINTS, "")
 
-
+'''
