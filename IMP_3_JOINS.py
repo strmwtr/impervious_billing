@@ -39,6 +39,7 @@ for feat in imp_list:
   inte = gdb + '\\' + feat_name + '_int'
   dis = gdb + '\\' + feat_name + '_dis'
   print feat_name
+  print dis
   arcpy.MakeTableView_management(dis, "{0}_tview".format(feat_name))
   
   field_names = [f.name for f in arcpy.ListFields("FINAL_IMP_POINTS_tview")]
@@ -46,8 +47,8 @@ for feat in imp_list:
 
   arcpy.AddJoin_management("FINAL_IMP_POINTS_tview", "PARCELSPOL", 
   "{0}_tview".format(feat_name), "GPIN")
-  arcpy.CalculateField_management("FINAL_IMP_POINTS_tview", 
-  "{0}_tview".format(feat_name) + ".SHAPE_Area", "VB")
+  
+  #arcpy.CalculateField_management("FINAL_IMP_POINTS_tview", ,"{0}_dis_tview.SHAPE_Area".format(feat_name), "VB")
   arcpy.RemoveJoin_management("FINAL_IMP_POINTS_tview")
 
 
