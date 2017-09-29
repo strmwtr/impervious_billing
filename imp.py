@@ -10,21 +10,22 @@ arcpy.env.workspace = gdb
 arcpy.env.overwriteOutput = True
 
 #Clears gdb, can be taken out after development is done
-wipe_gdb.wipe_gdb(gdb)
+wipe_gdb.wipe(gdb)
+'''
+#Data pointers
+sde_parcel_area = sde + '\\cvgis.CITY.Cadastre\\cvgis.CITY.parcel_area'
+sde_parcel_point = sde + r'\cvgis.CITY.Cadastre\cvgis.CITY.parcel_point'
 
-# Local variables:
-cvgis_CITY_parcel_area = sde + '\\cvgis.CITY.Cadastre\\cvgis.CITY.parcel_area'
-cvgis_CITY_parcel_point = sde + r'\cvgis.CITY.Cadastre\cvgis.CITY.parcel_point'
-
+#Output names
 intersect1 = gdb + r'\intersect1'
 dissolve1 = gdb + r'\dissolve1'
 all_imp = gdb + r'\all_imp'
 union1 = gdb + r'\union1'
-parcel_point_copy = gdb + r'\parcel_point'
+gdb_parcel_point = gdb + r'\parcel_point'
 FINAL_IMP_POINTS = gdb + r'\FINAL_IMP_POINTS'
 
 #Copy Parcel points to gdb
-arcpy.CopyFeatures_management(cvgis_CITY_parcel_point, parcel_point_copy)
+arcpy.CopyFeatures_management(sde_parcel_point, gdb_parcel_point)
 
 # Merge all impervious layers into all_imp
 imp_list = [
@@ -41,27 +42,21 @@ imp_list = [
 
 arcpy.Merge_management(imp_list, all_imp)
 
-# Process: Union
 arcpy.Union_analysis(all_imp, union1, "ALL", "", "GAPS")
 
-# Process: Intersect
-arcpy.Intersect_analysis([cvgis_CITY_parcel_area, union1], intersect1, "ALL", 
+arcpy.Intersect_analysis([sde_parcel_area, union1], intersect1, "ALL", 
   "", "INPUT")
 
-# Process: Dissolve
 arcpy.Dissolve_management(intersect1, dissolve1, "GPIN", "", "MULTI_PART", 
   "DISSOLVE_LINES")
 
-# Process: Join Field
-arcpy.JoinField_management(parcel_point_copy, "PARCELSPOL", dissolve1, "GPIN", 
+arcpy.JoinField_management(gdb_parcel_point, "PARCELSPOL", dissolve1, "GPIN", 
   "")
 
-# Process: Add Field (PIN)
-arcpy.AddField_management(parcel_point_copy, "PIN", "TEXT", "", "", "15", "", 
+arcpy.AddField_management(gdb_parcel_point, "PIN", "TEXT", "", "", "15", "", 
   "NULLABLE", "NON_REQUIRED", "")
 
-# Process: Calculate Field (PIN)
-arcpy.CalculateField_management(parcel_point_copy, "PIN", "[PROP_ID]", "VB", 
+arcpy.CalculateField_management(gdb_parcel_point, "PIN", "[PROP_ID]", "VB", 
   "")
 
 add_fields = ["STRUCTURE_AREA", "SLAB_AREA", "MISC_STRUCT_AREA", 
@@ -69,19 +64,19 @@ add_fields = ["STRUCTURE_AREA", "SLAB_AREA", "MISC_STRUCT_AREA",
   "RAILROAD_AREA"]
 
 for field in add_fields:
-  arcpy.AddField_management(parcel_point_copy, field, "DOUBLE", "", 
+  arcpy.AddField_management(gdb_parcel_point, field, "DOUBLE", "", 
   "", "15", "", "NULLABLE", "NON_REQUIRED", "")
 
-# Process: Add Field (Total Area)
-arcpy.AddField_management(parcel_point_copy, "TOTAL_IMP_AREA", "DOUBLE", "", 
+arcpy.AddField_management(gdb_parcel_point, "TOTAL_IMP_AREA", "DOUBLE", "", 
   "", "", "", "NULLABLE", "NON_REQUIRED", "")
 
-# Process: Calculate Field (calculate Total IMP area)
-arcpy.CalculateField_management(parcel_point_copy, "TOTAL_IMP_AREA", 
+arcpy.CalculateField_management(gdb_parcel_point, "TOTAL_IMP_AREA", 
   "[Shape_Area]", "VB", "")
 
 # Process: Remove Join
-#arcpy.RemoveJoin_management(parcel_point_copy) # might speed things up
+#arcpy.RemoveJoin_management(gdb_parcel_point) # might speed things up
 
 # Process: Copy out to final point featureclass
-arcpy.Copy_management(parcel_point_copy, FINAL_IMP_POINTS, "")
+arcpy.Copy_management(gdb_parcel_point, FINAL_IMP_POINTS, "")
+
+'''

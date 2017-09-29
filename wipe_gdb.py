@@ -1,11 +1,16 @@
 import arcpy
 
-def wipe_gdb(gdb):
-  '''Deletes everything in a geodatabase'''
-  arcpy.env.workspace = gdb
+def wipe(geodatabase):
+  '''Deletes everything in a given geodatabase'''
+  arcpy.env.workspace = geodatabase
 
-  for x in arcpy.ListDatasets():
-    arcpy.Delete_management(x)
-
-
-wipe_gdb(r'C:\Users\brownr\Desktop\imperv\data\imp.gdb')
+  data_types = [
+    arcpy.ListDatasets(), 
+    arcpy.ListFeatureClasses(), 
+    arcpy.ListRasters(), 
+    arcpy.ListTables()
+    ]
+  for datasets in data_types:
+    for data in datasets:
+      arcpy.Delete_management(data)
+  
