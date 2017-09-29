@@ -11,9 +11,9 @@ arcpy.env.overwriteOutput = True
 
 #Clears gdb, can be taken out after development is done
 wipe_gdb.wipe(gdb)
-'''
+
 #Data pointers
-sde_parcel_area = sde + '\\cvgis.CITY.Cadastre\\cvgis.CITY.parcel_area'
+sde_parcel_area = sde + r'\cvgis.CITY.Cadastre\cvgis.CITY.parcel_area'
 sde_parcel_point = sde + r'\cvgis.CITY.Cadastre\cvgis.CITY.parcel_point'
 
 #Output names
@@ -23,6 +23,8 @@ all_imp = gdb + r'\all_imp'
 union1 = gdb + r'\union1'
 gdb_parcel_point = gdb + r'\parcel_point'
 FINAL_IMP_POINTS = gdb + r'\FINAL_IMP_POINTS'
+FINAL_IMP_BREAKOUT = gdb + r'\FINAL_IMP_BREAKOUT'
+
 
 #Copy Parcel points to gdb
 arcpy.CopyFeatures_management(sde_parcel_point, gdb_parcel_point)
@@ -79,4 +81,18 @@ arcpy.CalculateField_management(gdb_parcel_point, "TOTAL_IMP_AREA",
 # Process: Copy out to final point featureclass
 arcpy.Copy_management(gdb_parcel_point, FINAL_IMP_POINTS, "")
 
-'''
+# Script 2
+
+for feat in imp_list:
+  inte = gdb + '\\' + feat.split('.')[-1] + '_int'
+  dis = gdb + '\\' + feat.split('.')[-1] + '_dis'
+
+  print '\n'
+  print feat
+  print inte
+  print dis
+  print '\n'
+
+  arcpy.Intersect_analysis([feat, sde_parcel_area], inte)
+  arcpy.Dissolve_management(inte, dis, ["GPIN"], "","MULTI_PART", 
+  "DISSOLVE_LINES")
