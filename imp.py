@@ -83,16 +83,33 @@ arcpy.Copy_management(gdb_parcel_point, FINAL_IMP_POINTS, "")
 
 # Script 2
 
+#This line is from script 3
+arcpy.MakeTableView_management(FINAL_IMP_POINTS, "FINAL_IMP_POINTS_tview")
+
 for feat in imp_list:
   inte = gdb + '\\' + feat.split('.')[-1] + '_int'
   dis = gdb + '\\' + feat.split('.')[-1] + '_dis'
-
+  feat_name = feat.split('.')[-1]
+  tview = "{0}_tview".format(feat)
   print '\n'
-  print feat
+  print feat_name
   print inte
   print dis
+  print tview
   print '\n'
 
   arcpy.Intersect_analysis([feat, sde_parcel_area], inte)
   arcpy.Dissolve_management(inte, dis, ["GPIN"], "","MULTI_PART", 
   "DISSOLVE_LINES")
+  
+  #Scipt 3
+  print 
+  arcpy.MakeTableView_management(dis, tview)
+  arcpy.AddJoin_management("FINAL_IMP_POINTS_tview", "PARCELSPOL", 
+  tview, "GPIN")
+  #arcpy.CalculateField_management("FINAL_IMP_POINTS_tview", ,"{0}_dis_tview.SHAPE_Area".format(feat_name), "VB")
+  arcpy.CopyRows_management(tview, gdb + '\\tbl_{0}'.format(feat_name))
+  arcpy.RemoveJoin_management("FINAL_IMP_POINTS_tview")
+  
+arcpy.CopyRows_management("FINAL_IMP_POINTS_tview", FINAL_IMP_BREAKOUT)
+
