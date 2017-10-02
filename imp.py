@@ -31,15 +31,15 @@ arcpy.CopyFeatures_management(sde_parcel_point, gdb_parcel_point)
 
 # Merge all impervious layers into all_imp
 imp_list = [
-  sde+r'\cvgis.CITY.Buildings\cvgis.CITY.slab_area',
   sde+r'\cvgis.CITY.Buildings\cvgis.CITY.structure_existing_area',
+  sde+r'\cvgis.CITY.Buildings\cvgis.CITY.slab_area',  
   sde+r'\cvgis.CITY.Buildings\cvgis.CITY.miscellaneous_building_area',
-  sde+r'\cvgis.CITY.Transportation_Other\cvgis.CITY.pedestrian_walkway_area',
-  sde+r'\cvgis.CITY.Transportation_Railroad\cvgis.CITY.railroad_area',
-  sde+r'\cvgis.CITY.Transportation_Other\cvgis.CITY.pedestrian_sidewalk_area',
-  sde+r'\cvgis.CITY.Transportation_Road\cvgis.CITY.road_area_master',
-  sde+r'\cvgis.CITY.Transportation_Other\cvgis.CITY.vehicle_driveway_area',
   sde+r'\cvgis.CITY.Transportation_Other\cvgis.CITY.vehicle_parking_area'
+  sde+r'\cvgis.CITY.Transportation_Other\cvgis.CITY.vehicle_driveway_area',
+  sde+r'\cvgis.CITY.Transportation_Other\cvgis.CITY.pedestrian_sidewalk_area',
+  sde+r'\cvgis.CITY.Transportation_Other\cvgis.CITY.pedestrian_walkway_area',
+  sde+r'\cvgis.CITY.Transportation_Road\cvgis.CITY.road_area_master',
+  sde+r'\cvgis.CITY.Transportation_Railroad\cvgis.CITY.railroad_area',
   ]
 
 arcpy.Merge_management(imp_list, all_imp)
