@@ -11,7 +11,7 @@ arcpy.env.overwriteOutput = True
 
 #Clears gdb, can be taken out after development is done
 wipe_gdb.wipe(gdb)
-'''
+
 #Data pointers
 sde_parcel_area = sde + r'\cvgis.CITY.Cadastre\cvgis.CITY.parcel_area'
 sde_parcel_point = sde + r'\cvgis.CITY.Cadastre\cvgis.CITY.parcel_point'
@@ -112,4 +112,3 @@ for feat in imp_list:
   arcpy.RemoveJoin_management("FINAL_IMP_POINTS_tview")
   
 arcpy.CopyRows_management("FINAL_IMP_POINTS_tview", FINAL_IMP_BREAKOUT)
-'''
