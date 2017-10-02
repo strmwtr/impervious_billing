@@ -34,7 +34,7 @@ imp_list = [
   sde+r'\cvgis.CITY.Buildings\cvgis.CITY.structure_existing_area',
   sde+r'\cvgis.CITY.Buildings\cvgis.CITY.slab_area',  
   sde+r'\cvgis.CITY.Buildings\cvgis.CITY.miscellaneous_building_area',
-  sde+r'\cvgis.CITY.Transportation_Other\cvgis.CITY.vehicle_parking_area'
+  sde+r'\cvgis.CITY.Transportation_Other\cvgis.CITY.vehicle_parking_area',
   sde+r'\cvgis.CITY.Transportation_Other\cvgis.CITY.vehicle_driveway_area',
   sde+r'\cvgis.CITY.Transportation_Other\cvgis.CITY.pedestrian_sidewalk_area',
   sde+r'\cvgis.CITY.Transportation_Other\cvgis.CITY.pedestrian_walkway_area',
@@ -92,10 +92,8 @@ for feat in imp_list:
   feat_name = feat.split('.')[-1]
   tview = "{0}_tview".format(feat)
   print '\n'
-  print feat_name
-  print inte
-  print dis
-  print tview
+  print feat
+  print add_fields[imp_list.index(feat)]
   print '\n'
 
   arcpy.Intersect_analysis([feat, sde_parcel_area], inte)
@@ -107,7 +105,7 @@ for feat in imp_list:
   arcpy.MakeTableView_management(dis, tview)
   arcpy.AddJoin_management("FINAL_IMP_POINTS_tview", "PARCELSPOL", 
   tview, "GPIN")
-  #arcpy.CalculateField_management("FINAL_IMP_POINTS_tview", ,"{0}_dis_tview.SHAPE_Area".format(feat_name), "VB")
+  arcpy.CalculateField_management("FINAL_IMP_POINTS_tview",add_fields[imp_list.index(feat)] ,"{0}.SHAPE_Area".format(tview), "VB")
   arcpy.CopyRows_management(tview, gdb + '\\tbl_{0}'.format(feat_name))
   arcpy.RemoveJoin_management("FINAL_IMP_POINTS_tview")
   
