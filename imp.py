@@ -3,16 +3,12 @@ import arcpy
 import gdb_tools
 
 #Set environments 
-
 #Databases
 gdb = r'C:\Users\brownr\Desktop\imperv\data\imp.gdb'
 sde = r'Database Connections\Connection to GISPRDDB direct connect.sde'
 
 arcpy.env.workspace = gdb
 arcpy.env.overwriteOutput = True
-
-#Clears gdb, can be taken out after development is done
-gdb_tools.wipe(gdb)
 
 #Data pointers
 sde_parcel_area = sde + r'\cvgis.CITY.Cadastre\cvGIS.CITY.parcel_area'
@@ -36,7 +32,7 @@ intersect = gdb + r'\intersect'
 dissolve = gdb + r'\dissolve'
 imperv = gdb + r'\imperv'
 union = gdb + r'\union_del'
-gdb_parcel_point = gdb + r'\parcel_point'
+parcel_point = gdb + r'\parcel_point'
 imp_points = gdb + r'\imp_points'
 final_table = gdb + r'\IMPERVIOUS_AREA'
 
@@ -46,7 +42,7 @@ imp_fields = ["STRUCTURE_AREA", "SLAB_AREA", "MISC_STRUCT_AREA",
 
 def data_prep():
   #Copy Parcel points to gdb
-  arcpy.CopyFeatures_management(sde_parcel_point, gdb_parcel_point)
+  arcpy.CopyFeatures_management(sde_parcel_point, parcel_point)
   #Merge imp_list to create imperv
   arcpy.Merge_management(imp_list, imperv)
   #Union imperv to create union
@@ -58,22 +54,22 @@ def data_prep():
   arcpy.Dissolve_management(intersect, dissolve, "GPIN", "", "MULTI_PART", 
     "DISSOLVE_LINES")
   #Join parcel points with dissolve
-  arcpy.JoinField_management(gdb_parcel_point, "PARCELSPOL", dissolve, "GPIN", 
+  arcpy.JoinField_management(parcel_point, "PARCELSPOL", dissolve, "GPIN", 
     "")
   #Add PIN to join listed above
-  arcpy.AddField_management(gdb_parcel_point, "PIN", "TEXT", "", "", "15", "", 
+  arcpy.AddField_management(parcel_point, "PIN", "TEXT", "", "", "15", "", 
     "NULLABLE", "NON_REQUIRED", "")
   #Populate PIN with PROP_ID field
-  arcpy.CalculateField_management(gdb_parcel_point, "PIN", "[PROP_ID]", "VB", 
+  arcpy.CalculateField_management(parcel_point, "PIN", "[PROP_ID]", "VB", 
     "")
   #Add TOTAL_IMP_AREA field
-  arcpy.AddField_management(gdb_parcel_point, "TOTAL_IMP_AREA", "DOUBLE", "", 
+  arcpy.AddField_management(parcel_point, "TOTAL_IMP_AREA", "DOUBLE", "", 
     "", "", "", "NULLABLE", "NON_REQUIRED", "")
   #Populate TOTAL_IMP_AREA as shape area of all impervious 
-  arcpy.CalculateField_management(gdb_parcel_point, "TOTAL_IMP_AREA", 
+  arcpy.CalculateField_management(parcel_point, "TOTAL_IMP_AREA", 
     "[Shape_Area]", "VB", "")
   #Export joins to imp_points
-  arcpy.Copy_management(gdb_parcel_point, imp_points)
+  arcpy.Copy_management(parcel_point, imp_points)
 
 def gen_imp_tbl():
   #For each feature in imp_list
@@ -111,6 +107,8 @@ def clean():
       print field
       arcpy.DeleteField_management(final_table, field)
 
+#Cleans GDB
+gdb_tools.wipe(gdb)
 data_prep()
 gen_imp_tbl()
 clean()
