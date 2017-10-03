@@ -1,6 +1,6 @@
 #Import modules
 import arcpy
-import wipe_gdb
+import gdb_tools
 
 #Set environments 
 
@@ -12,7 +12,7 @@ arcpy.env.workspace = gdb
 arcpy.env.overwriteOutput = True
 
 #Clears gdb, can be taken out after development is done
-wipe_gdb.wipe(gdb)
+gdb_tools.wipe(gdb)
 
 #Data pointers
 sde_parcel_area = sde + r'\cvgis.CITY.Cadastre\cvGIS.CITY.parcel_area'
@@ -103,7 +103,7 @@ def gen_imp_tbl():
   #Create IMPERVIOUS_AREA table
   arcpy.CopyRows_management(imp_points, final_table)
 
-def clean_final():
+def clean():
   all_fields = [f.name for f in arcpy.ListFields(final_table)]
   keep_fields = ['OBJECTID', 'PIN', 'GPIN', 'TOTAL_IMP_AREA'] + imp_fields
   for field in all_fields:
@@ -113,4 +113,4 @@ def clean_final():
 
 data_prep()
 gen_imp_tbl()
-clean_final()
+clean()
