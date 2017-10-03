@@ -3,6 +3,8 @@ import arcpy
 import wipe_gdb
 
 #Set environments 
+
+#Databases
 gdb = r'C:\Users\brownr\Desktop\imperv\data\imp.gdb'
 sde = r'Database Connections\Connection to GISPRDDB direct connect.sde'
 
@@ -16,20 +18,7 @@ wipe_gdb.wipe(gdb)
 sde_parcel_area = sde + r'\cvgis.CITY.Cadastre\cvGIS.CITY.parcel_area'
 sde_parcel_point = sde + r'\cvgis.CITY.Cadastre\cvgis.CITY.parcel_point'
 
-#Output names
-intersect1 = gdb + r'\intersect1'
-dissolve1 = gdb + r'\dissolve1'
-all_imp = gdb + r'\all_imp'
-union1 = gdb + r'\union1'
-gdb_parcel_point = gdb + r'\parcel_point'
-FINAL_IMP_POINTS = gdb + r'\FINAL_IMP_POINTS'
-FINAL_IMP_BREAKOUT = gdb + r'\FINAL_IMP_BREAKOUT'
-
-
-#Copy Parcel points to gdb
-arcpy.CopyFeatures_management(sde_parcel_point, gdb_parcel_point)
-
-# Merge all impervious layers into all_imp
+#List of all impervious surfaces
 imp_list = [
   sde+r'\cvgis.CITY.Buildings\cvgis.CITY.structure_existing_area',
   sde+r'\cvgis.CITY.Buildings\cvgis.CITY.slab_area',  
@@ -42,98 +31,86 @@ imp_list = [
   sde+r'\cvgis.CITY.Transportation_Railroad\cvgis.CITY.railroad_area',
   ]
 
-arcpy.Merge_management(imp_list, all_imp)
+#Output names
+intersect = gdb + r'\intersect'
+dissolve = gdb + r'\dissolve'
+imperv = gdb + r'\imperv'
+union = gdb + r'\union_del'
+gdb_parcel_point = gdb + r'\parcel_point'
+imp_points = gdb + r'\imp_points'
+final_table = gdb + r'\IMPERVIOUS_AREA'
 
-arcpy.Union_analysis(all_imp, union1, "ALL", "", "GAPS")
-
-arcpy.Intersect_analysis([sde_parcel_area, union1], intersect1, "ALL", 
-  "", "INPUT")
-
-arcpy.Dissolve_management(intersect1, dissolve1, "GPIN", "", "MULTI_PART", 
-  "DISSOLVE_LINES")
-
-arcpy.JoinField_management(gdb_parcel_point, "PARCELSPOL", dissolve1, "GPIN", 
-  "")
-
-arcpy.AddField_management(gdb_parcel_point, "PIN", "TEXT", "", "", "15", "", 
-  "NULLABLE", "NON_REQUIRED", "")
-
-arcpy.CalculateField_management(gdb_parcel_point, "PIN", "[PROP_ID]", "VB", 
-  "")
-
-add_fields = ["STRUCTURE_AREA", "SLAB_AREA", "MISC_STRUCT_AREA", 
+imp_fields = ["STRUCTURE_AREA", "SLAB_AREA", "MISC_STRUCT_AREA", 
   "PARKING_AREA", "DRIVEWAY_AREA", "SIDEWALK_AREA", "WALKWAY_AREA","ROAD_AREA",
   "RAILROAD_AREA"]
 
-for field in add_fields:
-  arcpy.AddField_management(gdb_parcel_point, field, "DOUBLE", "", 
-  "", "15", "", "NULLABLE", "NON_REQUIRED", "")
+def data_prep():
+  #Copy Parcel points to gdb
+  arcpy.CopyFeatures_management(sde_parcel_point, gdb_parcel_point)
+  #Merge imp_list to create imperv
+  arcpy.Merge_management(imp_list, imperv)
+  #Union imperv to create union
+  arcpy.Union_analysis(imperv, union, "ALL", "", "GAPS")
+  #Intersect parcel polygons with union, create intersect feature
+  arcpy.Intersect_analysis([sde_parcel_area, union], intersect, "ALL", 
+    "", "INPUT")
+  #Disolve intersect around GPIN, create dissolve feature
+  arcpy.Dissolve_management(intersect, dissolve, "GPIN", "", "MULTI_PART", 
+    "DISSOLVE_LINES")
+  #Join parcel points with dissolve
+  arcpy.JoinField_management(gdb_parcel_point, "PARCELSPOL", dissolve, "GPIN", 
+    "")
+  #Add PIN to join listed above
+  arcpy.AddField_management(gdb_parcel_point, "PIN", "TEXT", "", "", "15", "", 
+    "NULLABLE", "NON_REQUIRED", "")
+  #Populate PIN with PROP_ID field
+  arcpy.CalculateField_management(gdb_parcel_point, "PIN", "[PROP_ID]", "VB", 
+    "")
+  #Add TOTAL_IMP_AREA field
+  arcpy.AddField_management(gdb_parcel_point, "TOTAL_IMP_AREA", "DOUBLE", "", 
+    "", "", "", "NULLABLE", "NON_REQUIRED", "")
+  #Populate TOTAL_IMP_AREA as shape area of all impervious 
+  arcpy.CalculateField_management(gdb_parcel_point, "TOTAL_IMP_AREA", 
+    "[Shape_Area]", "VB", "")
+  #Export joins to imp_points
+  arcpy.Copy_management(gdb_parcel_point, imp_points)
 
-arcpy.AddField_management(gdb_parcel_point, "TOTAL_IMP_AREA", "DOUBLE", "", 
-  "", "", "", "NULLABLE", "NON_REQUIRED", "")
+def gen_imp_tbl():
+  #For each feature in imp_list
+  for feat in imp_list:
+    #Feature name
+    feat_name = feat.split('.')[-1]
+    #Intersect output path
+    inte = gdb + '\\' + feat_name + '_int'
+    #Disolve output path
+    dis = gdb + '\\' + feat_name + '_dis'
+    #Field to join on 
+    current_field = imp_fields[imp_list.index(feat)]
 
-arcpy.CalculateField_management(gdb_parcel_point, "TOTAL_IMP_AREA", 
-  "[Shape_Area]", "VB", "")
+    #Intersect feature and sde parcel area
+    arcpy.Intersect_analysis([feat, sde_parcel_area], inte)
+    #Disolve around GPIN
+    arcpy.Dissolve_management(inte, dis, ["GPIN"], "","MULTI_PART", 
+    "DISSOLVE_LINES")
+    #Add current_field to intersect
+    arcpy.AddField_management(dis, current_field, "DOUBLE", "", "", "15", "", 
+    "NULLABLE", "NON_REQUIRED", "")
+    #Populate current_field with representative impervious area 
+    arcpy.CalculateField_management(dis, current_field,"[Shape_Area]", "VB")
+    #Join imp_points with feature
+    arcpy.JoinField_management(imp_points, 'PARCELSPOL', dis, 
+    'GPIN', current_field)
+  #Create IMPERVIOUS_AREA table
+  arcpy.CopyRows_management(imp_points, final_table)
 
-# Process: Remove Join
-#arcpy.RemoveJoin_management(gdb_parcel_point) # might speed things up
+def clean_final():
+  all_fields = [f.name for f in arcpy.ListFields(final_table)]
+  keep_fields = ['OBJECTID', 'PIN', 'GPIN', 'TOTAL_IMP_AREA'] + imp_fields
+  for field in all_fields:
+    if field not in  keep_fields:
+      print field
+      arcpy.DeleteField_management(final_table, field)
 
-# Process: Copy out to final point featureclass
-arcpy.Copy_management(gdb_parcel_point, FINAL_IMP_POINTS, "")
-
-# Script 2
-
-#This line is from script 3
-arcpy.MakeTableView_management(FINAL_IMP_POINTS, "FINAL_IMP_POINTS_tview")
-
-for feat in imp_list:
-  feat_name = feat.split('.')[-1]
-  inte = gdb + '\\' + feat_name + '_int'
-  dis = gdb + '\\' + feat_name + '_dis'
-  tview = feat + '_tview'
-  #calc_field = "{0}_dis.Shape_Area".format(feat_name)
-
-  arcpy.Intersect_analysis([feat, sde_parcel_area], inte)
-  arcpy.Dissolve_management(inte, dis, ["GPIN"], "","MULTI_PART", 
-  "DISSOLVE_LINES")
-
-  arcpy.AddField_management(dis, add_fields[imp_list.index(feat)], "DOUBLE", "", 
-  "", "15", "", "NULLABLE", "NON_REQUIRED", "")  
-  arcpy.CalculateField_management(dis, add_fields[imp_list.index(feat)], 
-  "[Shape_Area]", "VB")
-  '''
-  #Scipt 3
-  arcpy.MakeTableView_management(dis, tview)
-  arcpy.AddJoin_management("FINAL_IMP_POINTS_tview", "PARCELSPOL", 
-  tview, "GPIN")
-
-  tblv_names = [f.name for f in arcpy.ListFields("FINAL_IMP_POINTS_tview")]
-  print tblv_names
-
-  updated_field = "FINAL_IMP_POINTS."+add_fields[imp_list.index(feat)]
-  source_field = "{0}_dis.".format(feat_name)+add_fields[imp_list.index(feat)]
-  print updated_field, '\n', source_field, '\n'
-
-  arcpy.CalculateField_management("FINAL_IMP_POINTS_tview", updated_field, 
-  source_field, "VB")
-
-  arcpy.CopyRows_management("FINAL_IMP_POINTS_tview", dis+'_tbl')
-  arcpy.RemoveJoin_management("FINAL_IMP_POINTS_tview")
-  
-  if calc_field in tblv_names:
-    print "Yes", calc_field
-    #arcpy.CalculateField_management("FINAL_IMP_POINTS_tview", add_fields[imp_list.index(feat)], '[LOTSQFT]', "VB")
-    #arcpy.CalculateField_management("FINAL_IMP_POINTS_tview", add_fields[imp_list.index(feat)], calc_field, "VB")
-    
-    arcpy.CopyRows_management("FINAL_IMP_POINTS_tview", dis+'_tbl')
-    arcpy.RemoveJoin_management("FINAL_IMP_POINTS_tview")
-  else:
-    print "No", calc_field, '\n', tblv_names
-    arcpy.RemoveJoin_management("FINAL_IMP_POINTS_tview")
-  '''
-  '''
-  arcpy.CalculateField_management("FINAL_IMP_POINTS_tview",
-  add_fields[imp_list.index(feat)], calc_field, "VB")
-  arcpy.RemoveJoin_management("FINAL_IMP_POINTS_tview")
-  '''
-#arcpy.CopyRows_management("FINAL_IMP_POINTS_tview", FINAL_IMP_BREAKOUT)
+data_prep()
+gen_imp_tbl()
+clean_final()
