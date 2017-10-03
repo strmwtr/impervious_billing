@@ -13,7 +13,7 @@ arcpy.env.overwriteOutput = True
 wipe_gdb.wipe(gdb)
 
 #Data pointers
-sde_parcel_area = sde + r'\cvgis.CITY.Cadastre\cvgis.CITY.parcel_area'
+sde_parcel_area = sde + r'\cvgis.CITY.Cadastre\cvGIS.CITY.parcel_area'
 sde_parcel_point = sde + r'\cvgis.CITY.Cadastre\cvgis.CITY.parcel_point'
 
 #Output names
@@ -87,26 +87,53 @@ arcpy.Copy_management(gdb_parcel_point, FINAL_IMP_POINTS, "")
 arcpy.MakeTableView_management(FINAL_IMP_POINTS, "FINAL_IMP_POINTS_tview")
 
 for feat in imp_list:
-  inte = gdb + '\\' + feat.split('.')[-1] + '_int'
-  dis = gdb + '\\' + feat.split('.')[-1] + '_dis'
   feat_name = feat.split('.')[-1]
-  tview = "{0}_tview".format(feat)
-  print '\n'
-  print feat
-  print add_fields[imp_list.index(feat)]
-  print '\n'
+  inte = gdb + '\\' + feat_name + '_int'
+  dis = gdb + '\\' + feat_name + '_dis'
+  tview = feat + '_tview'
+  #calc_field = "{0}_dis.Shape_Area".format(feat_name)
 
   arcpy.Intersect_analysis([feat, sde_parcel_area], inte)
   arcpy.Dissolve_management(inte, dis, ["GPIN"], "","MULTI_PART", 
   "DISSOLVE_LINES")
-  
+
+  arcpy.AddField_management(dis, add_fields[imp_list.index(feat)], "DOUBLE", "", 
+  "", "15", "", "NULLABLE", "NON_REQUIRED", "")  
+  arcpy.CalculateField_management(dis, add_fields[imp_list.index(feat)], 
+  "[Shape_Area]", "VB")
+  '''
   #Scipt 3
-  print 
   arcpy.MakeTableView_management(dis, tview)
   arcpy.AddJoin_management("FINAL_IMP_POINTS_tview", "PARCELSPOL", 
   tview, "GPIN")
-  arcpy.CalculateField_management("FINAL_IMP_POINTS_tview",add_fields[imp_list.index(feat)] ,"{0}.SHAPE_Area".format(tview), "VB")
-  arcpy.CopyRows_management(tview, gdb + '\\tbl_{0}'.format(feat_name))
+
+  tblv_names = [f.name for f in arcpy.ListFields("FINAL_IMP_POINTS_tview")]
+  print tblv_names
+
+  updated_field = "FINAL_IMP_POINTS."+add_fields[imp_list.index(feat)]
+  source_field = "{0}_dis.".format(feat_name)+add_fields[imp_list.index(feat)]
+  print updated_field, '\n', source_field, '\n'
+
+  arcpy.CalculateField_management("FINAL_IMP_POINTS_tview", updated_field, 
+  source_field, "VB")
+
+  arcpy.CopyRows_management("FINAL_IMP_POINTS_tview", dis+'_tbl')
   arcpy.RemoveJoin_management("FINAL_IMP_POINTS_tview")
   
-arcpy.CopyRows_management("FINAL_IMP_POINTS_tview", FINAL_IMP_BREAKOUT)
+  if calc_field in tblv_names:
+    print "Yes", calc_field
+    #arcpy.CalculateField_management("FINAL_IMP_POINTS_tview", add_fields[imp_list.index(feat)], '[LOTSQFT]', "VB")
+    #arcpy.CalculateField_management("FINAL_IMP_POINTS_tview", add_fields[imp_list.index(feat)], calc_field, "VB")
+    
+    arcpy.CopyRows_management("FINAL_IMP_POINTS_tview", dis+'_tbl')
+    arcpy.RemoveJoin_management("FINAL_IMP_POINTS_tview")
+  else:
+    print "No", calc_field, '\n', tblv_names
+    arcpy.RemoveJoin_management("FINAL_IMP_POINTS_tview")
+  '''
+  '''
+  arcpy.CalculateField_management("FINAL_IMP_POINTS_tview",
+  add_fields[imp_list.index(feat)], calc_field, "VB")
+  arcpy.RemoveJoin_management("FINAL_IMP_POINTS_tview")
+  '''
+#arcpy.CopyRows_management("FINAL_IMP_POINTS_tview", FINAL_IMP_BREAKOUT)
