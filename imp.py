@@ -29,6 +29,9 @@ imp_list = [
   sde+r'\cvgis.CITY.Transportation_Railroad\cvgis.CITY.railroad_area',
   ]
 
+#Get data as string and replace - with _
+str_today = str(datetime.date.today()).replace('-','_')
+
 #Output names
 intersect = gdb + r'\intersect'
 dissolve = gdb + r'\dissolve'
@@ -36,7 +39,7 @@ imperv = gdb + r'\imperv'
 union_out = gdb + r'\union_out'
 parcel_point = gdb + r'\parcel_point'
 imp_points = gdb + r'\imp_points'
-final_table = arc_gdb + r'\IMPERVIOUS_AREA'
+final_table = arc_gdb + r'\IMPERVIOUS_AREA_{0}'.format(str_today)
 
 imp_fields = ["STRUCTURE_AREA", "SLAB_AREA", "MISC_STRUCT_AREA", 
   "PARKING_AREA", "DRIVEWAY_AREA", "SIDEWALK_AREA", "WALKWAY_AREA","ROAD_AREA",
