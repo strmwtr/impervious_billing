@@ -1,11 +1,13 @@
 #Import modules
 import arcpy
 import gdb_tools
+import datetime
 
 #Set environments 
 #Databases
 gdb = r'\\metanoia\geodata\PW\sw_tech\Impervious\Impervious.gdb'
 sde = r'Database Connections\Connection to GISPRDDB direct connect.sde'
+arc_gdb = r'\\metanoia\geodata\PW\sw_tech\Impervious\Impervious_Archive.gdb'
 
 arcpy.env.workspace = gdb
 arcpy.env.overwriteOutput = True
