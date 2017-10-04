@@ -4,8 +4,7 @@ import gdb_tools
 
 #Set environments 
 #Databases
-#gdb = r'J:\CITYWIDE\Utilities\Stormwater Utility\GIS\Impervious\Impervious.gdb'
-gdb = r'C:\Users\brownr\Desktop\imperv\data\imp.gdb'
+gdb = r'\\metanoia\geodata\PW\sw_tech\Impervious\Impervious.gdb'
 sde = r'Database Connections\Connection to GISPRDDB direct connect.sde'
 
 arcpy.env.workspace = gdb
@@ -55,14 +54,14 @@ def data_prep():
   #Join parcel points with dissolve
   arcpy.JoinField_management(parcel_point, "PARCELSPOL", dissolve, "GPIN")
   #Add PIN to join listed above
-  arcpy.AddField_management(parcel_point, "PIN", "TEXT", "", "", "15"")
+  arcpy.AddField_management(parcel_point, "PIN", "TEXT", "", "", "15")
   #Populate PIN with PROP_ID field
   arcpy.CalculateField_management(parcel_point, "PIN", "[PROP_ID]", "VB")
   #Add TOTAL_IMP_AREA field
   arcpy.AddField_management(parcel_point, "TOTAL_IMP_AREA", "DOUBLE")
   #Populate TOTAL_IMP_AREA as shape area of all impervious 
   arcpy.CalculateField_management(parcel_point, "TOTAL_IMP_AREA", 
-  "[Shape_Area]", "VB", "")
+  "[Shape_Area]", "VB")
   #Export joins to imp_points
   arcpy.Copy_management(parcel_point, imp_points)
 
@@ -102,5 +101,5 @@ def clean():
 #Cleans GDB
 gdb_tools.wipe(gdb)
 data_prep()
-#gen_imp_tbl()
-#clean()
+gen_imp_tbl()
+clean()
