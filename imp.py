@@ -4,7 +4,7 @@ import gdb_tools
 
 #Set environments 
 #Databases
-gdb = r'C:\Users\brownr\Desktop\imperv\data\imp.gdb'
+gdb = r'J:\CITYWIDE\Utilities\Stormwater Utility\GIS\Impervious\Impervious.gdb'
 sde = r'Database Connections\Connection to GISPRDDB direct connect.sde'
 
 arcpy.env.workspace = gdb
