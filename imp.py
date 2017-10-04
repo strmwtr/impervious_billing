@@ -36,7 +36,7 @@ imperv = gdb + r'\imperv'
 union_out = gdb + r'\union_out'
 parcel_point = gdb + r'\parcel_point'
 imp_points = gdb + r'\imp_points'
-final_table = gdb + r'\IMPERVIOUS_AREA'
+final_table = arc_gdb + r'\IMPERVIOUS_AREA'
 
 imp_fields = ["STRUCTURE_AREA", "SLAB_AREA", "MISC_STRUCT_AREA", 
   "PARKING_AREA", "DRIVEWAY_AREA", "SIDEWALK_AREA", "WALKWAY_AREA","ROAD_AREA",
