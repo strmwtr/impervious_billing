@@ -41,11 +41,9 @@ parcel_point = gdb + r'\parcel_point'
 imp_points = gdb + r'\imp_points'
 final_table = arc_gdb + r'\IMPERVIOUS_AREA_{0}'.format(str_today)
 
-gdb_tools.check_del(arc_gdb, 'IMPERVIOUS_AREA_{0}'.format(str_today))
-
-imp_fields = ["STRUCTURE_AREA", "SLAB_AREA", "MISC_STRUCT_AREA", 
-  "PARKING_AREA", "DRIVEWAY_AREA", "SIDEWALK_AREA", "WALKWAY_AREA","ROAD_AREA",
-  "RAILROAD_AREA"]
+imp_fields = ['STRUCTURE_AREA', 'SLAB_AREA', 'MISC_STRUCT_AREA', 
+  'PARKING_AREA', 'DRIVEWAY_AREA', 'SIDEWALK_AREA', 'WALKWAY_AREA','ROAD_AREA',
+  'RAILROAD_AREA']
 
 def data_prep():
   #If final_table already exists, delete it
@@ -59,18 +57,18 @@ def data_prep():
   #Intersect parcel polygons with union_out, create intersect feature
   arcpy.Intersect_analysis([sde_parcel_area, union_out], intersect)
   #Disolve intersect around GPIN, create dissolve feature
-  arcpy.Dissolve_management(intersect, dissolve, "GPIN")
+  arcpy.Dissolve_management(intersect, dissolve, 'GPIN')
   #Join parcel points with dissolve
-  arcpy.JoinField_management(parcel_point, "PARCELSPOL", dissolve, "GPIN")
+  arcpy.JoinField_management(parcel_point, 'PARCELSPOL', dissolve, 'GPIN')
   #Add PIN to join listed above
-  arcpy.AddField_management(parcel_point, "PIN", "TEXT", "", "", "15")
+  arcpy.AddField_management(parcel_point, 'PIN', 'TEXT', '', '', '15')
   #Populate PIN with PROP_ID field
-  arcpy.CalculateField_management(parcel_point, "PIN", "[PROP_ID]", "VB")
+  arcpy.CalculateField_management(parcel_point, 'PIN', '[PROP_ID]', 'VB')
   #Add TOTAL_IMP_AREA field
-  arcpy.AddField_management(parcel_point, "TOTAL_IMP_AREA", "DOUBLE")
+  arcpy.AddField_management(parcel_point, 'TOTAL_IMP_AREA', 'DOUBLE')
   #Populate TOTAL_IMP_AREA as shape area of all impervious 
-  arcpy.CalculateField_management(parcel_point, "TOTAL_IMP_AREA", 
-  "[Shape_Area]", "VB")
+  arcpy.CalculateField_management(parcel_point, 'TOTAL_IMP_AREA', 
+  '[Shape_Area]', 'VB')
   #Export joins to imp_points
   arcpy.Copy_management(parcel_point, imp_points)
 
@@ -89,11 +87,11 @@ def gen_imp_tbl():
     #Intersect feature and sde parcel area
     arcpy.Intersect_analysis([feat, sde_parcel_area], inte)
     #Disolve around GPIN
-    arcpy.Dissolve_management(inte, dis, ["GPIN"])
+    arcpy.Dissolve_management(inte, dis, ['GPIN'])
     #Add current_field to intersect
-    arcpy.AddField_management(dis, current_field, "DOUBLE", "", "", "15")
+    arcpy.AddField_management(dis, current_field, 'DOUBLE', '', '', '15')
     #Populate current_field with representative impervious area 
-    arcpy.CalculateField_management(dis, current_field,"[Shape_Area]", "VB")
+    arcpy.CalculateField_management(dis, current_field,'[Shape_Area]', 'VB')
     #Join imp_points with feature
     arcpy.JoinField_management(imp_points, 'PARCELSPOL', dis, 
     'GPIN', current_field)
@@ -107,9 +105,34 @@ def clean():
     if field not in  keep_fields:
       arcpy.DeleteField_management(final_table, field)
 
+def null_to_zero():
+  update_fields = imp_fields + ['TOTAL_IMP_AREA']
+  with arcpy.da.UpdateCursor(final_table, update_fields) as cursor:
+    for row in cursor:
+      indices = [i for i, x in enumerate(row) if x == None]
+      for val in indices:
+        row[val] = 0
+      cursor.updateRow(row)
+
+def delta_calcs():
+  more_fields = ['SUM_IMP', 'DELTA']
+  sum_fields = ''
+  for x in imp_fields:
+    sum_fields = sum_fields + '[{0}]+'.format(x)
+  sum_fields = sum_fields[:-1]
+  print sum_fields
+  for field in more_fields:
+    arcpy.AddField_management(final_table, field, 'DOUBLE')
+  arcpy.CalculateField_management(final_table, 'SUM_IMP', sum_fields, 'VB')
+  arcpy.CalculateField_management(final_table, 'DELTA', 
+  '[TOTAL_IMP_AREA] - [SUM_IMP]', 'VB')
+  
+
 #Cleans GDB
-gdb_tools.wipe(gdb)
-data_prep()
-gen_imp_tbl()
-clean()
-gdb_tools.wipe(gdb)
+#gdb_tools.wipe(gdb)
+#data_prep()
+#gen_imp_tbl()
+#clean()
+#null_to_zero()
+delta_calcs()
+#gdb_tools.wipe(gdb)
