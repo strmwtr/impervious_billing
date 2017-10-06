@@ -16,14 +16,9 @@ def wipe(geodatabase):
 
 def check_del(geodatabase, dataset):
   arcpy.env.workspace = geodatabase
+  try: 
+    arcpy.Delete_management(dataset)
+  except:
+    pass
 
-  data_types = [
-    arcpy.ListDatasets(), 
-    arcpy.ListFeatureClasses(), 
-    arcpy.ListRasters(), 
-    arcpy.ListTables()
-    ]
-  for datasets in data_types:
-    if dataset in datasets:
-      arcpy.Delete_management(dataset)
-       
+    
