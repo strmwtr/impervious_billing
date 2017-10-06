@@ -41,7 +41,7 @@ parcel_point = gdb + r'\parcel_point'
 imp_points = gdb + r'\imp_points'
 final_table = arc_gdb + r'\IMPERVIOUS_AREA_{0}'.format(str_today)
 
-gdb_tools.check_del(arc_gdb, final_table)
+gdb_tools.check_del(arc_gdb, 'IMPERVIOUS_AREA_{0}'.format(str_today))
 
 imp_fields = ["STRUCTURE_AREA", "SLAB_AREA", "MISC_STRUCT_AREA", 
   "PARKING_AREA", "DRIVEWAY_AREA", "SIDEWALK_AREA", "WALKWAY_AREA","ROAD_AREA",
@@ -50,7 +50,6 @@ imp_fields = ["STRUCTURE_AREA", "SLAB_AREA", "MISC_STRUCT_AREA",
 def data_prep():
   #If final_table already exists, delete it
   gdb_tools.check_del(arc_gdb, final_table)
-  '''
   #Copy Parcel points to gdb
   arcpy.CopyFeatures_management(sde_parcel_point, parcel_point)
   #Merge imp_list to create imperv
@@ -74,7 +73,7 @@ def data_prep():
   "[Shape_Area]", "VB")
   #Export joins to imp_points
   arcpy.Copy_management(parcel_point, imp_points)
-  '''
+
 def gen_imp_tbl():
   #For each feature in imp_list
   for feat in imp_list:
@@ -111,5 +110,6 @@ def clean():
 #Cleans GDB
 gdb_tools.wipe(gdb)
 data_prep()
-#gen_imp_tbl()
-#clean()
+gen_imp_tbl()
+clean()
+gdb_tools.wipe(gdb)
