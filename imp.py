@@ -99,15 +99,23 @@ def gen_imp_tbl():
   arcpy.CopyRows_management(imp_points, final_table)
 
 def clean():
+  #Deletes all fields other than imp_fields and the pin/gpin/total/objectid
+  #Generates field names
   all_fields = [f.name for f in arcpy.ListFields(final_table)]
+  #All the fields that should not be deleted
   keep_fields = ['OBJECTID', 'PIN', 'GPIN', 'TOTAL_IMP_AREA'] + imp_fields
+  #If a field in all_fields is not in keep_fields, delete it
   for field in all_fields:
     if field not in  keep_fields:
       arcpy.DeleteField_management(final_table, field)
 
 def null_to_zero():
+  #Changes null values to zeros
+  #imp_fields plus Total_IMP_AREA field
   update_fields = imp_fields + ['TOTAL_IMP_AREA']
+  #Create cursor for values of update_fields
   with arcpy.da.UpdateCursor(final_table, update_fields) as cursor:
+    #For each row in the cursor, if value is None, change value to 0
     for row in cursor:
       indices = [i for i, x in enumerate(row) if x == None]
       for val in indices:
@@ -115,24 +123,25 @@ def null_to_zero():
       cursor.updateRow(row)
 
 def delta_calcs():
+  #Add these fields to table
   more_fields = ['SUM_IMP', 'DELTA']
+  #Generate sum equation
   sum_fields = ''
   for x in imp_fields:
     sum_fields = sum_fields + '[{0}]+'.format(x)
   sum_fields = sum_fields[:-1]
-  print sum_fields
+  #Add fields from more_fields
   for field in more_fields:
     arcpy.AddField_management(final_table, field, 'DOUBLE')
+  #Calculate SUM_IMP with sum_fields equation
   arcpy.CalculateField_management(final_table, 'SUM_IMP', sum_fields, 'VB')
+  #Calculate DELTA as TOTAL_IMP_AREA-SUM_IMP
   arcpy.CalculateField_management(final_table, 'DELTA', 
   '[TOTAL_IMP_AREA] - [SUM_IMP]', 'VB')
   
-
-#Cleans GDB
-#gdb_tools.wipe(gdb)
-#data_prep()
-#gen_imp_tbl()
-#clean()
-#null_to_zero()
+gdb_tools.wipe(gdb)
+data_prep()
+gen_imp_tbl()
+clean()
+null_to_zero()
 delta_calcs()
-#gdb_tools.wipe(gdb)
