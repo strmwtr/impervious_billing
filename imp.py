@@ -26,7 +26,7 @@ imp_list = [
   sde+r'\cvgis.CITY.Transportation_Other\cvgis.CITY.pedestrian_sidewalk_area',
   sde+r'\cvgis.CITY.Transportation_Other\cvgis.CITY.pedestrian_walkway_area',
   sde+r'\cvgis.CITY.Transportation_Road\cvgis.CITY.road_area_master',
-  sde+r'\cvgis.CITY.Transportation_Railroad\cvgis.CITY.railroad_area',
+  sde+r'\cvgis.CITY.Transportation_Railroad\cvgis.CITY.railroad_area'
   ]
 
 #Get data as string and replace - with _
